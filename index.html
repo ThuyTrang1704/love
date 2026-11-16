@@ -70,9 +70,10 @@ h2 {
 }
 
 .load-line {
-    opacity: 0;
-    animation: showLine .5s forwards;
+    opacity: 1;
+    min-height: 26px;
     text-shadow: 0 0 8px #ff1493;
+    overflow-wrap: anywhere;
 }
 
 @keyframes showLine {
@@ -275,10 +276,6 @@ const loadingLines = [
 
     "> Kết quả: ĐÃ TÌM THẤY ANH ❤️",
 
-    "> Đang tải và biên dịch hạnh phúc...",
-
-    "> Đang cài đặt niềm vui và tiếng cười...",
-
     "> Chúc anh ngày 19/11 thật vui vẻ và hạnh phúc! 💗",
 
     "> Chúc anh luôn mạnh khỏe, bình an và thành công...",
@@ -295,12 +292,40 @@ const loadingLines = [
 
 let lineIndex = 0;
 
+const typingSpeed = 100; // Tốc độ gõ từng chữ (ms)
+const lineDelay = 1500;  // Nghỉ giữa các dòng (ms)
+
+function typeLine(text, element, index = 0) {
+
+    if (index < text.length) {
+
+        element.textContent += text.charAt(index);
+
+        setTimeout(() => {
+            typeLine(text, element, index + 1);
+        }, typingSpeed);
+
+    } else {
+
+        lineIndex++;
+
+        document.getElementById("progressBar").style.width =
+            (lineIndex / loadingLines.length * 100) + "%";
+
+        document.getElementById("loadingStatus").innerText =
+            "LOADING... " +
+            Math.floor(lineIndex / loadingLines.length * 100) + "%";
+
+        setTimeout(runLoading, lineDelay);
+    }
+}
+
 function runLoading() {
 
     if (lineIndex >= loadingLines.length) {
 
         document.getElementById("loadingStatus").innerText =
-            "LOADING COMPLETE - 100% ❤️";
+            "HOÀN TẤT - 100% ❤️";
 
         setTimeout(() => {
 
@@ -308,7 +333,7 @@ function runLoading() {
 
             document.getElementById("heartSection").style.display = "block";
 
-        }, 1000);
+        }, 2000);
 
         return;
     }
@@ -317,19 +342,9 @@ function runLoading() {
 
     line.className = "load-line";
 
-    line.textContent = loadingLines[lineIndex];
-
     document.getElementById("codeLines").appendChild(line);
 
-    lineIndex++;
-
-    document.getElementById("progressBar").style.width =
-        (lineIndex * 10) + "%";
-
-    document.getElementById("loadingStatus").innerText =
-        "LOADING... " + (lineIndex * 10) + "%";
-
-    setTimeout(runLoading, 800);
+    typeLine(loadingLines[lineIndex], line);
 }
 
 // TỰ ĐỘNG CHẠY KHI MỞ TRANG
